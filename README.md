@@ -50,6 +50,22 @@ python3 -m antarctica.live --symbol SBER --board TQBR --interval-sec 1 --top-of-
 
 Если появляется сигнал, строка будет иметь `"kind": "signal"`. Строки `"kind": "status"` показывают запуск, периодическую работу и остановку. Без `--top-of-book` live-режим пытается читать Level II стакан и завершится с понятной ошибкой, если у ISS endpoint нет доступа.
 
+## Запись истории
+
+Recorder копит сырые события в JSONL-файлы, чтобы потом прогонять стратегию replay-режимом или анализировать микроструктуру отдельно:
+
+```bash
+python3 -m antarctica.recorder --symbol SBER --board TQBR --interval-sec 1 --top-of-book
+```
+
+Короткая проверка:
+
+```bash
+python3 -m antarctica.recorder --symbol SBER --board TQBR --interval-sec 1 --top-of-book --max-polls 3
+```
+
+Файлы пишутся в `data/raw/<SYMBOL>/<BOARD>/<YYYY-MM-DD>.jsonl`. Каждая строка содержит одно событие `book` или `trade`, `timestamp_ms`, `symbol`, `board` и источник. Папка `data/` добавлена в `.gitignore`, чтобы не коммитить большие рыночные записи.
+
 Проверка на нескольких MOEX-подобных инструментах с разными шагами цены:
 
 ```bash
