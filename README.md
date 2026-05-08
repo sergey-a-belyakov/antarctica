@@ -18,6 +18,22 @@ MVP детектора асимметрии ликвидности для Мос
 python3 -m antarctica.cli --symbol SBER --tick-size 0.01 --lot-size 10 --book examples/book.csv --trades examples/trades.csv
 ```
 
+## Реальные данные MOEX ISS
+
+Загрузка публичных данных Московской биржи через ISS:
+
+```bash
+python3 -m antarctica.cli --source moex --symbol SBER --board TQBR --polls 3 --interval-sec 1 --top-of-book --dump-events
+```
+
+По умолчанию `--source moex` пытается использовать endpoint стакана Level II:
+
+```bash
+python3 -m antarctica.cli --source moex --symbol SBER --board TQBR
+```
+
+Если ISS возвращает HTML вместо JSON, значит для полного стакана по этому endpoint нет доступа к market-data подписке. В этом случае `--top-of-book` использует публичную таблицу `marketdata` с лучшим Bid/Offer и реальные анонимные сделки, но это не полноценный стакан и не подходит для финальной версии стратегии «Антарктида».
+
 Проверка на нескольких MOEX-подобных инструментах с разными шагами цены:
 
 ```bash
