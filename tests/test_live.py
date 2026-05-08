@@ -1,8 +1,8 @@
 from decimal import Decimal
 from types import SimpleNamespace
 
-from antarctica.live import fetch_once, trade_key
-from antarctica.models import AggressorSide, BookSnapshot, Trade
+from flowcore.live import fetch_once, trade_key
+from flowcore.models import AggressorSide, BookSnapshot, Trade
 
 
 class FakeClient:

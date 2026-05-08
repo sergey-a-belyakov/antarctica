@@ -5,10 +5,10 @@ description = "MOEX Level II liquidity wall detector and strategy replay prototy
 requires-python = ">=3.10"
 
 [project.scripts]
-antarctica-replay = "antarctica.cli:main"
-antarctica-live = "antarctica.live:main"
-antarctica-record = "antarctica.recorder:main"
-antarctica-replay-jsonl = "antarctica.replay_jsonl:main"
+antarctica-replay = "flowcore.cli:main"
+antarctica-live = "flowcore.live:main"
+antarctica-record = "flowcore.recorder:main"
+antarctica-replay-jsonl = "flowcore.replay_jsonl:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

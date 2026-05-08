@@ -7,10 +7,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from antarctica.config import InstrumentConfig, StrategyConfig
-from antarctica.data import MarketEvent
-from antarctica.engine import ReplayEngine
-from antarctica.models import AggressorSide, BookSnapshot, Trade
+from flowcore.config import InstrumentConfig, StrategyConfig
+from flowcore.data import MarketEvent
+from flowcore.engine import ReplayEngine
+from flowcore.models import AggressorSide, BookSnapshot, Trade
 
 
 @dataclass(frozen=True)

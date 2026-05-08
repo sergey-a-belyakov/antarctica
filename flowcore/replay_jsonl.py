@@ -12,7 +12,7 @@ from .engine import ReplayEngine
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Replay recorded Antarctica JSONL market events.")
-    parser.add_argument("paths", nargs="+", help="JSONL files written by antarctica.recorder")
+    parser.add_argument("paths", nargs="+", help="JSONL files written by flowcore.recorder")
     parser.add_argument("--symbol", required=True)
     parser.add_argument("--tick-size", required=True, type=Decimal)
     parser.add_argument("--lot-size", default=1, type=int)

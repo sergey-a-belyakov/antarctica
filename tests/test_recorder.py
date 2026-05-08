@@ -1,7 +1,7 @@
 import json
 from decimal import Decimal
 
-from antarctica.recorder import JsonlRecorder
+from flowcore.recorder import JsonlRecorder
 
 
 def test_jsonl_recorder_writes_symbol_board_date_path(tmp_path) -> None:

@@ -15,7 +15,7 @@ MVP детектора асимметрии ликвидности для Мос
 ## Запуск примера
 
 ```bash
-python3 -m antarctica.cli --symbol SBER --tick-size 0.01 --lot-size 10 --book examples/book.csv --trades examples/trades.csv
+python3 -m flowcore.cli --symbol SBER --tick-size 0.01 --lot-size 10 --book examples/book.csv --trades examples/trades.csv
 ```
 
 ## Реальные данные MOEX ISS
@@ -23,13 +23,13 @@ python3 -m antarctica.cli --symbol SBER --tick-size 0.01 --lot-size 10 --book ex
 Загрузка публичных данных Московской биржи через ISS:
 
 ```bash
-python3 -m antarctica.cli --source moex --symbol SBER --board TQBR --polls 3 --interval-sec 1 --top-of-book --dump-events
+python3 -m flowcore.cli --source moex --symbol SBER --board TQBR --polls 3 --interval-sec 1 --top-of-book --dump-events
 ```
 
 По умолчанию `--source moex` пытается использовать endpoint стакана Level II:
 
 ```bash
-python3 -m antarctica.cli --source moex --symbol SBER --board TQBR
+python3 -m flowcore.cli --source moex --symbol SBER --board TQBR
 ```
 
 Если ISS возвращает HTML вместо JSON, значит для полного стакана по этому endpoint нет доступа к market-data подписке. В этом случае `--top-of-book` использует публичную таблицу `marketdata` с лучшим Bid/Offer и реальные анонимные сделки, но это не полноценный стакан и не подходит для финальной версии стратегии «Антарктида».
@@ -39,13 +39,13 @@ python3 -m antarctica.cli --source moex --symbol SBER --board TQBR
 Live-режим работает до `Ctrl+C`, сохраняет состояние детектора между опросами и печатает JSON lines:
 
 ```bash
-python3 -m antarctica.live --symbol SBER --board TQBR --interval-sec 1 --top-of-book --dump-events
+python3 -m flowcore.live --symbol SBER --board TQBR --interval-sec 1 --top-of-book --dump-events
 ```
 
 Для короткой проверки без бесконечного цикла:
 
 ```bash
-python3 -m antarctica.live --symbol SBER --board TQBR --interval-sec 1 --top-of-book --max-polls 3
+python3 -m flowcore.live --symbol SBER --board TQBR --interval-sec 1 --top-of-book --max-polls 3
 ```
 
 Если появляется сигнал, строка будет иметь `"kind": "signal"`. Строки `"kind": "status"` показывают запуск, периодическую работу и остановку. Без `--top-of-book` live-режим пытается читать Level II стакан и завершится с понятной ошибкой, если у ISS endpoint нет доступа.
@@ -55,13 +55,13 @@ python3 -m antarctica.live --symbol SBER --board TQBR --interval-sec 1 --top-of-
 Recorder копит сырые события в JSONL-файлы, чтобы потом прогонять стратегию replay-режимом или анализировать микроструктуру отдельно:
 
 ```bash
-python3 -m antarctica.recorder --symbol SBER --board TQBR --interval-sec 1 --top-of-book
+python3 -m flowcore.recorder --symbol SBER --board TQBR --interval-sec 1 --top-of-book
 ```
 
 Короткая проверка:
 
 ```bash
-python3 -m antarctica.recorder --symbol SBER --board TQBR --interval-sec 1 --top-of-book --max-polls 3
+python3 -m flowcore.recorder --symbol SBER --board TQBR --interval-sec 1 --top-of-book --max-polls 3
 ```
 
 Файлы пишутся в `data/raw/<SYMBOL>/<BOARD>/<YYYY-MM-DD>.jsonl`. Каждая строка содержит одно событие `book` или `trade`, `timestamp_ms`, `symbol`, `board` и источник. Папка `data/` добавлена в `.gitignore`, чтобы не коммитить большие рыночные записи.
@@ -71,7 +71,7 @@ python3 -m antarctica.recorder --symbol SBER --board TQBR --interval-sec 1 --top
 Прогон стратегии по JSONL-файлу, записанному recorder:
 
 ```bash
-python3 -m antarctica.replay_jsonl data/raw/SBER/TQBR/2026-05-08.jsonl --symbol SBER --tick-size 0.01 --lot-size 1 --summary
+python3 -m flowcore.replay_jsonl data/raw/SBER/TQBR/2026-05-08.jsonl --symbol SBER --tick-size 0.01 --lot-size 1 --summary
 ```
 
 Если стратегия найдет сигнал, он будет напечатан строкой JSON с `"kind": "signal"`. С `--summary` в конце печатается количество обработанных событий и сигналов.
@@ -90,4 +90,4 @@ python3 examples/multi_symbol_demo.py
 
 `wall_removed`: стена была рядом с ценой, затем быстро исчезла, и цена пробила ее уровень. Для снятой bid-стены это short, для снятой ask-стены long.
 
-Ключевые пороги находятся в `antarctica/config.py`: отношение bid/ask, размер стены к локальному среднему, время жизни стены, окно удержания, доля исполненного и снятого объема.
+Ключевые пороги находятся в `flowcore/config.py`: отношение bid/ask, размер стены к локальному среднему, время жизни стены, окно удержания, доля исполненного и снятого объема.

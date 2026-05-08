@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from antarctica.moex import _table_rows, MoexIssClient
-from antarctica.models import AggressorSide
+from flowcore.moex import _table_rows, MoexIssClient
+from flowcore.models import AggressorSide
 
 
 def test_table_rows_maps_moex_columns_to_dicts() -> None:

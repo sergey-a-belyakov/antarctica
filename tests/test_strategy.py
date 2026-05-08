@@ -1,10 +1,10 @@
 from decimal import Decimal
 
-from antarctica.config import InstrumentConfig, StrategyConfig
-from antarctica.data import MarketEvent
-from antarctica.engine import ReplayEngine
-from antarctica.models import AggressorSide, BookSnapshot, Trade
-from antarctica.signals import SignalSide, SignalType
+from flowcore.config import InstrumentConfig, StrategyConfig
+from flowcore.data import MarketEvent
+from flowcore.engine import ReplayEngine
+from flowcore.models import AggressorSide, BookSnapshot, Trade
+from flowcore.signals import SignalSide, SignalType
 from examples.multi_symbol_demo import INSTRUMENTS, build_bid_wall_events
 
 

@@ -1,8 +1,8 @@
 import json
 from decimal import Decimal
 
-from antarctica.data import event_from_json_row, load_events_jsonl
-from antarctica.models import AggressorSide
+from flowcore.data import event_from_json_row, load_events_jsonl
+from flowcore.models import AggressorSide
 
 
 def test_event_from_json_row_parses_book() -> None:
