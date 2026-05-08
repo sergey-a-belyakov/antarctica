@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import csv
+import json
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
-from typing import Iterator
+from typing import Any, Iterator
 
 from .models import AggressorSide, BookSnapshot, Trade
 
@@ -59,6 +60,45 @@ def load_trades_csv(path: str | Path) -> Iterator[Trade]:
                 size=parse_decimal(row["size"]),
                 aggressor=AggressorSide(row.get("aggressor", "unknown").strip().lower()),
             )
+
+
+def load_events_jsonl(path: str | Path) -> Iterator[MarketEvent]:
+    """Load recorder JSONL rows into replayable market events."""
+
+    with Path(path).open(encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"{path}:{line_number}: invalid JSONL row") from exc
+            yield event_from_json_row(row, path, line_number)
+
+
+def event_from_json_row(row: dict[str, Any], path: str | Path = "<memory>", line_number: int = 0) -> MarketEvent:
+    kind = row.get("kind")
+    timestamp_ms = int(row["timestamp_ms"])
+    if kind == "book":
+        bids = [_price_size(level) for level in row.get("bids", [])]
+        asks = [_price_size(level) for level in row.get("asks", [])]
+        snapshot = BookSnapshot.from_dicts(timestamp_ms, bids, asks)
+        return MarketEvent(timestamp_ms=timestamp_ms, snapshot=snapshot)
+    if kind == "trade":
+        trade = Trade(
+            timestamp_ms=timestamp_ms,
+            price=parse_decimal(str(row["price"])),
+            size=parse_decimal(str(row["size"])),
+            aggressor=AggressorSide(str(row.get("aggressor", "unknown")).lower()),
+        )
+        return MarketEvent(timestamp_ms=timestamp_ms, trade=trade)
+    location = f"{path}:{line_number}" if line_number else str(path)
+    raise ValueError(f"{location}: unsupported event kind {kind!r}")
+
+
+def _price_size(level: dict[str, Any]) -> tuple[Decimal, Decimal]:
+    return parse_decimal(str(level["price"])), parse_decimal(str(level["size"]))
 
 
 def merge_events(

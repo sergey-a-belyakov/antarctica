@@ -8,6 +8,7 @@ requires-python = ">=3.10"
 antarctica-replay = "antarctica.cli:main"
 antarctica-live = "antarctica.live:main"
 antarctica-record = "antarctica.recorder:main"
+antarctica-replay-jsonl = "antarctica.replay_jsonl:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

@@ -66,6 +66,16 @@ python3 -m antarctica.recorder --symbol SBER --board TQBR --interval-sec 1 --top
 
 Файлы пишутся в `data/raw/<SYMBOL>/<BOARD>/<YYYY-MM-DD>.jsonl`. Каждая строка содержит одно событие `book` или `trade`, `timestamp_ms`, `symbol`, `board` и источник. Папка `data/` добавлена в `.gitignore`, чтобы не коммитить большие рыночные записи.
 
+## Replay Записанной Истории
+
+Прогон стратегии по JSONL-файлу, записанному recorder:
+
+```bash
+python3 -m antarctica.replay_jsonl data/raw/SBER/TQBR/2026-05-08.jsonl --symbol SBER --tick-size 0.01 --lot-size 1 --summary
+```
+
+Если стратегия найдет сигнал, он будет напечатан строкой JSON с `"kind": "signal"`. С `--summary` в конце печатается количество обработанных событий и сигналов.
+
 Проверка на нескольких MOEX-подобных инструментах с разными шагами цены:
 
 ```bash
