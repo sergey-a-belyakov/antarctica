@@ -1,0 +1,12 @@
+[project]
+name = "antarctica"
+version = "0.1.0"
+description = "MOEX Level II liquidity wall detector and strategy replay prototype"
+requires-python = ">=3.10"
+
+[project.scripts]
+antarctica-replay = "antarctica.cli:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

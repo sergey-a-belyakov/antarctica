@@ -1,0 +1,4 @@
+timestamp_ms,price,size,aggressor
+200,99.99,20,sell
+300,99.99,20,sell
+400,99.99,20,sell
