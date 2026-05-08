@@ -18,15 +18,19 @@ class ReplayEngine:
     def run(self, events: list[MarketEvent] | tuple[MarketEvent, ...]) -> tuple[Signal, ...]:
         emitted: list[Signal] = []
         for event in sorted(events, key=lambda item: item.timestamp_ms):
-            if event.snapshot is not None:
-                self._last_snapshot = event.snapshot
-                active = self.detector.on_snapshot(event.snapshot)
-                inactive = self.detector.recently_inactive(event.timestamp_ms)
-                emitted.extend(self.signals.evaluate(event.snapshot, active, inactive))
-            elif event.trade is not None:
-                self.detector.on_trade(event.trade)
-                if self._last_snapshot is not None:
-                    active = self.detector.active_walls
-                    inactive = self.detector.recently_inactive(event.timestamp_ms)
-                    emitted.extend(self.signals.evaluate(self._last_snapshot, active, inactive))
+            emitted.extend(self.process(event))
         return tuple(emitted)
+
+    def process(self, event: MarketEvent) -> tuple[Signal, ...]:
+        if event.snapshot is not None:
+            self._last_snapshot = event.snapshot
+            active = self.detector.on_snapshot(event.snapshot)
+            inactive = self.detector.recently_inactive(event.timestamp_ms)
+            return self.signals.evaluate(event.snapshot, active, inactive)
+        if event.trade is not None:
+            self.detector.on_trade(event.trade)
+            if self._last_snapshot is not None:
+                active = self.detector.active_walls
+                inactive = self.detector.recently_inactive(event.timestamp_ms)
+                return self.signals.evaluate(self._last_snapshot, active, inactive)
+        return ()

@@ -59,6 +59,24 @@ def test_bid_wall_hold_produces_long_signal() -> None:
     assert signals[0].entry_price == Decimal("99.99")
 
 
+def test_streaming_process_matches_batch_run() -> None:
+    events = [
+        MarketEvent(0, snapshot=snapshot(0, Decimal("600"))),
+        MarketEvent(100, snapshot=snapshot(100, Decimal("600"))),
+        MarketEvent(200, trade=Trade(200, Decimal("99.99"), Decimal("20"), AggressorSide.SELL)),
+        MarketEvent(300, trade=Trade(300, Decimal("99.99"), Decimal("20"), AggressorSide.SELL)),
+        MarketEvent(900, snapshot=snapshot(900, Decimal("580"))),
+    ]
+    batch_signals = ReplayEngine(instrument(), config()).run(events)
+
+    live_engine = ReplayEngine(instrument(), config())
+    live_signals = []
+    for event in events:
+        live_signals.extend(live_engine.process(event))
+
+    assert live_signals == list(batch_signals)
+
+
 def test_bid_wall_removed_produces_short_signal() -> None:
     broken = BookSnapshot.from_dicts(
         500,

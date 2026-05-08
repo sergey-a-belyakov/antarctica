@@ -34,6 +34,22 @@ python3 -m antarctica.cli --source moex --symbol SBER --board TQBR
 
 Если ISS возвращает HTML вместо JSON, значит для полного стакана по этому endpoint нет доступа к market-data подписке. В этом случае `--top-of-book` использует публичную таблицу `marketdata` с лучшим Bid/Offer и реальные анонимные сделки, но это не полноценный стакан и не подходит для финальной версии стратегии «Антарктида».
 
+## Постоянный режим
+
+Live-режим работает до `Ctrl+C`, сохраняет состояние детектора между опросами и печатает JSON lines:
+
+```bash
+python3 -m antarctica.live --symbol SBER --board TQBR --interval-sec 1 --top-of-book --dump-events
+```
+
+Для короткой проверки без бесконечного цикла:
+
+```bash
+python3 -m antarctica.live --symbol SBER --board TQBR --interval-sec 1 --top-of-book --max-polls 3
+```
+
+Если появляется сигнал, строка будет иметь `"kind": "signal"`. Строки `"kind": "status"` показывают запуск, периодическую работу и остановку. Без `--top-of-book` live-режим пытается читать Level II стакан и завершится с понятной ошибкой, если у ISS endpoint нет доступа.
+
 Проверка на нескольких MOEX-подобных инструментах с разными шагами цены:
 
 ```bash
