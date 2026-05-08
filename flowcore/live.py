@@ -11,7 +11,7 @@ from .config import StrategyConfig
 from .data import MarketEvent
 from .engine import ReplayEngine
 from .moex import MoexIssAccessError, MoexIssClient, MoexIssError
-from .models import AggressorSide, Trade
+from .models import AggressorSide, BookSnapshot, Trade
 
 
 def main() -> int:
@@ -37,6 +37,7 @@ def main() -> int:
 
     engine = ReplayEngine(info.instrument, StrategyConfig(wall_ratio=args.wall_ratio))
     seen_trades: set[tuple[int, Decimal, Decimal, AggressorSide]] = set()
+    seen_books: set[tuple[object, ...]] = set()
     print(
         json.dumps(
             {
@@ -59,7 +60,7 @@ def main() -> int:
         while args.max_polls is None or poll < args.max_polls:
             poll += 1
             try:
-                events = fetch_once(client, args, seen_trades)
+                events = fetch_once(client, args, seen_trades, seen_books)
             except MoexIssAccessError as exc:
                 parser.error(f"{exc} Restart with --top-of-book for public best bid/offer data.")
             except MoexIssError as exc:
@@ -101,13 +102,19 @@ def fetch_once(
     client: MoexIssClient,
     args: argparse.Namespace,
     seen_trades: set[tuple[int, Decimal, Decimal, AggressorSide]],
+    seen_books: set[tuple[object, ...]] | None = None,
 ) -> tuple[MarketEvent, ...]:
     snapshot = (
         client.top_of_book_snapshot(args.symbol, args.engine, args.market, args.board)
         if args.top_of_book
         else client.orderbook_snapshot(args.symbol, args.engine, args.market, args.board)
     )
-    events = [MarketEvent(snapshot.timestamp_ms, snapshot=snapshot)]
+    events = []
+    book_key_value = book_key(snapshot)
+    if seen_books is None or book_key_value not in seen_books:
+        if seen_books is not None:
+            seen_books.add(book_key_value)
+        events.append(MarketEvent(snapshot.timestamp_ms, snapshot=snapshot))
     for trade in client.trades(args.symbol, args.engine, args.market, args.board, args.trades_limit):
         key = trade_key(trade)
         if key in seen_trades:
@@ -119,6 +126,12 @@ def fetch_once(
 
 def trade_key(trade: Trade) -> tuple[int, Decimal, Decimal, AggressorSide]:
     return (trade.timestamp_ms, trade.price, trade.size, trade.aggressor)
+
+
+def book_key(snapshot: BookSnapshot) -> tuple[object, ...]:
+    bids = tuple((level.price, level.size) for level in snapshot.bids)
+    asks = tuple((level.price, level.size) for level in snapshot.asks)
+    return (snapshot.timestamp_ms, bids, asks)
 
 
 if __name__ == "__main__":

@@ -50,6 +50,7 @@ def main() -> int:
 
     engine = ReplayEngine(info.instrument, StrategyConfig(wall_ratio=args.wall_ratio))
     seen_trades: set[tuple[int, Decimal, Decimal, AggressorSide]] = set()
+    seen_books: set[tuple[object, ...]] = set()
     source = "moex_iss_top_of_book" if args.top_of_book else "moex_iss_orderbook"
     stats = RunStats()
     print(
@@ -80,7 +81,7 @@ def main() -> int:
     try:
         while args.max_polls is None or stats.polls < args.max_polls:
             try:
-                events = fetch_once(client, args, seen_trades)
+                events = fetch_once(client, args, seen_trades, seen_books)
             except MoexIssAccessError as exc:
                 parser.error(f"{exc} Restart with --top-of-book for public best bid/offer data.")
             except MoexIssError as exc:

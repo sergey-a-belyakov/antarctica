@@ -1,7 +1,7 @@
 from decimal import Decimal
 from types import SimpleNamespace
 
-from flowcore.live import fetch_once, trade_key
+from flowcore.live import book_key, fetch_once, trade_key
 from flowcore.models import AggressorSide, BookSnapshot, Trade
 
 
@@ -48,3 +48,37 @@ def test_fetch_once_deduplicates_seen_trades() -> None:
     assert first[1].snapshot is not None
     assert len(second) == 1
     assert second[0].snapshot is not None
+
+
+def test_fetch_once_deduplicates_seen_books() -> None:
+    args = SimpleNamespace(
+        symbol="SBER",
+        engine="stock",
+        market="shares",
+        board="TQBR",
+        top_of_book=True,
+        trades_limit=50,
+    )
+    seen_trades = set()
+    seen_books = set()
+
+    first = fetch_once(FakeClient(), args, seen_trades, seen_books)
+    second = fetch_once(FakeClient(), args, seen_trades, seen_books)
+
+    assert len(first) == 2
+    assert first[1].snapshot is not None
+    assert second == ()
+
+
+def test_book_key_contains_timestamp_and_levels() -> None:
+    snapshot = BookSnapshot.from_dicts(
+        100,
+        bids=[(Decimal("99.99"), Decimal("10"))],
+        asks=[(Decimal("100.00"), Decimal("12"))],
+    )
+
+    assert book_key(snapshot) == (
+        100,
+        ((Decimal("99.99"), Decimal("10")),),
+        ((Decimal("100.00"), Decimal("12")),),
+    )
