@@ -9,6 +9,7 @@ antarctica-replay = "flowcore.cli:main"
 antarctica-live = "flowcore.live:main"
 antarctica-record = "flowcore.recorder:main"
 antarctica-replay-jsonl = "flowcore.replay_jsonl:main"
+antarctica-run = "flowcore.run:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

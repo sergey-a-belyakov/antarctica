@@ -76,6 +76,22 @@ python3 -m flowcore.replay_jsonl data/raw/SBER/TQBR/2026-05-08.jsonl --symbol SB
 
 Если стратегия найдет сигнал, он будет напечатан строкой JSON с `"kind": "signal"`. С `--summary` в конце печатается количество обработанных событий и сигналов.
 
+## Единый Live Pipeline
+
+Один процесс может одновременно получать рынок, писать raw-историю, прогонять стратегию и сохранять сигналы:
+
+```bash
+python3 -m flowcore.run --symbol SBER --board TQBR --interval-sec 1 --top-of-book --record-raw --record-signals
+```
+
+Короткая проверка:
+
+```bash
+python3 -m flowcore.run --symbol SBER --board TQBR --interval-sec 1 --top-of-book --record-raw --record-signals --max-polls 3
+```
+
+Raw-события пишутся в `data/raw/<SYMBOL>/<BOARD>/<YYYY-MM-DD>.jsonl`, сигналы - в `data/signals/<SYMBOL>/<BOARD>/<YYYY-MM-DD>.jsonl`. Replay по истории остается отдельной командой, чтобы можно было повторно прогонять старые данные с новыми параметрами стратегии.
+
 Проверка на нескольких MOEX-подобных инструментах с разными шагами цены:
 
 ```bash
